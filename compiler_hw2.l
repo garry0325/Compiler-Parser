@@ -63,7 +63,7 @@ id			{letter}+({letter}|{digit})*
 ","		{ return COMMA; }
 
  /* Print Keywords */	
-"print"		{ return PRINT; }
+"print"		{ yylval.string = yytext; return PRINT; }
 
  /* Condition and Loop Keywords */
 "if"		{ return IF; }
@@ -86,33 +86,33 @@ id			{letter}+({letter}|{digit})*
 
  /* String Constant */
 \"				        { BEGIN STRING_STATE; }
-<STRING_STATE>\"		{ BEGIN INITIAL; }
-<STRING_STATE>[^"]*		{  }
+<STRING_STATE>\"		{ BEGIN 0; }
+<STRING_STATE>[^"]*		{ yylval.string = yytext; return S_CONST; }
 
  /* Number Constant */
-{integer}	{  }
-{float}	    {  }
+{integer}	{ yylval.i_val = atoi(yytext); return I_CONST; }
+{float}	    { yylval.f_val = atof(yytext); return F_CONST; }
 
  /* C type Comment */
 "/*"				{ BEGIN COMMENT; }
 <COMMENT>[^*\n]+	{  }
-<COMMENT>\n			{  }
+<COMMENT>\n		{  }
 <COMMENT>"*"		{  }
-<COMMENT>"*/"		{  BEGIN INITIAL; }
+<COMMENT>"*/"		{  BEGIN 0; }
 
  /* C++ type Comment */
 \/\/.*	{  }
 
  /* Variable ID */
- {id}       { return ID; }
+ {id}       { yylval.string = yytext; return ID; }
 
  /* others */
 
 [;]         { return SEMICOLON; }
-[\n]        {  }
+[\n]        { yylineno++; }
 [ \t]		{ } /* Ignore */
 [^ \t\n] 	{ } /* Ignore other charactor sets */
-<<EOF>>     { }
+<<EOF>>     { return 0; }
 
 %%
 

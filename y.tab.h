@@ -46,43 +46,43 @@ extern int yydebug;
   enum yytokentype
   {
     PRINT = 258,
-    ID = 259,
-    SEMICOLON = 260,
-    ADD = 261,
-    SUB = 262,
-    MUL = 263,
-    DIV = 264,
-    MOD = 265,
-    INC = 266,
-    DEC = 267,
-    MT = 268,
-    LT = 269,
-    MTE = 270,
-    LTE = 271,
-    EQ = 272,
-    NE = 273,
-    ASGN = 274,
-    ADDASGN = 275,
-    SUBASGN = 276,
-    MULASGN = 277,
-    DIVASGN = 278,
-    MODASGN = 279,
-    AND = 280,
-    OR = 281,
-    NOT = 282,
-    LB = 283,
-    RB = 284,
-    LCB = 285,
-    RCB = 286,
-    LSB = 287,
-    RSB = 288,
-    COMMA = 289,
-    IF = 290,
-    ELSE = 291,
-    FOR = 292,
-    WHILE = 293,
-    I_CONST = 294,
-    F_CONST = 295,
+    SEMICOLON = 259,
+    ADD = 260,
+    SUB = 261,
+    MUL = 262,
+    DIV = 263,
+    MOD = 264,
+    INC = 265,
+    DEC = 266,
+    MT = 267,
+    LT = 268,
+    MTE = 269,
+    LTE = 270,
+    EQ = 271,
+    NE = 272,
+    ASGN = 273,
+    ADDASGN = 274,
+    SUBASGN = 275,
+    MULASGN = 276,
+    DIVASGN = 277,
+    MODASGN = 278,
+    AND = 279,
+    OR = 280,
+    NOT = 281,
+    LB = 282,
+    RB = 283,
+    LCB = 284,
+    RCB = 285,
+    LSB = 286,
+    RSB = 287,
+    COMMA = 288,
+    IF = 289,
+    ELSE = 290,
+    FOR = 291,
+    WHILE = 292,
+    I_CONST = 293,
+    F_CONST = 294,
+    S_CONST = 295,
     INT = 296,
     FLOAT = 297,
     BOOL = 298,
@@ -90,48 +90,49 @@ extern int yydebug;
     VOID = 300,
     TR = 301,
     FA = 302,
-    RET = 303
+    RET = 303,
+    ID = 304
   };
 #endif
 /* Tokens.  */
 #define PRINT 258
-#define ID 259
-#define SEMICOLON 260
-#define ADD 261
-#define SUB 262
-#define MUL 263
-#define DIV 264
-#define MOD 265
-#define INC 266
-#define DEC 267
-#define MT 268
-#define LT 269
-#define MTE 270
-#define LTE 271
-#define EQ 272
-#define NE 273
-#define ASGN 274
-#define ADDASGN 275
-#define SUBASGN 276
-#define MULASGN 277
-#define DIVASGN 278
-#define MODASGN 279
-#define AND 280
-#define OR 281
-#define NOT 282
-#define LB 283
-#define RB 284
-#define LCB 285
-#define RCB 286
-#define LSB 287
-#define RSB 288
-#define COMMA 289
-#define IF 290
-#define ELSE 291
-#define FOR 292
-#define WHILE 293
-#define I_CONST 294
-#define F_CONST 295
+#define SEMICOLON 259
+#define ADD 260
+#define SUB 261
+#define MUL 262
+#define DIV 263
+#define MOD 264
+#define INC 265
+#define DEC 266
+#define MT 267
+#define LT 268
+#define MTE 269
+#define LTE 270
+#define EQ 271
+#define NE 272
+#define ASGN 273
+#define ADDASGN 274
+#define SUBASGN 275
+#define MULASGN 276
+#define DIVASGN 277
+#define MODASGN 278
+#define AND 279
+#define OR 280
+#define NOT 281
+#define LB 282
+#define RB 283
+#define LCB 284
+#define RCB 285
+#define LSB 286
+#define RSB 287
+#define COMMA 288
+#define IF 289
+#define ELSE 290
+#define FOR 291
+#define WHILE 292
+#define I_CONST 293
+#define F_CONST 294
+#define S_CONST 295
 #define INT 296
 #define FLOAT 297
 #define BOOL 298
@@ -140,13 +141,14 @@ extern int yydebug;
 #define TR 301
 #define FA 302
 #define RET 303
+#define ID 304
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 
 union YYSTYPE
 {
-#line 35 "compiler_hw2.y" /* yacc.c:1909  */
+#line 37 "compiler_hw2.y" /* yacc.c:1909  */
 
     int i_val;
     double f_val;
@@ -154,7 +156,7 @@ union YYSTYPE
     int b_val;
     int v_val;
 
-#line 158 "y.tab.h" /* yacc.c:1909  */
+#line 160 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

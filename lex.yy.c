@@ -1036,7 +1036,7 @@ YY_RULE_SETUP
 case 30:
 YY_RULE_SETUP
 #line 66 "compiler_hw2.l"
-{ return PRINT; }
+{ yylval.string = yytext; return PRINT; }
 	YY_BREAK
 /* Condition and Loop Keywords */
 case 31:
@@ -1110,24 +1110,24 @@ YY_RULE_SETUP
 case 44:
 YY_RULE_SETUP
 #line 89 "compiler_hw2.l"
-{ BEGIN INITIAL; }
+{ BEGIN 0; }
 	YY_BREAK
 case 45:
 /* rule 45 can match eol */
 YY_RULE_SETUP
 #line 90 "compiler_hw2.l"
-{  }
+{ yylval.string = yytext; return S_CONST; }
 	YY_BREAK
 /* Number Constant */
 case 46:
 YY_RULE_SETUP
 #line 93 "compiler_hw2.l"
-{  }
+{ yylval.i_val = atoi(yytext); return I_CONST; }
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
 #line 94 "compiler_hw2.l"
-{  }
+{ yylval.f_val = atof(yytext); return F_CONST; }
 	YY_BREAK
 /* C type Comment */
 case 48:
@@ -1154,7 +1154,7 @@ YY_RULE_SETUP
 case 52:
 YY_RULE_SETUP
 #line 101 "compiler_hw2.l"
-{  BEGIN INITIAL; }
+{  BEGIN 0; }
 	YY_BREAK
 /* C++ type Comment */
 case 53:
@@ -1166,7 +1166,7 @@ YY_RULE_SETUP
 case 54:
 YY_RULE_SETUP
 #line 107 "compiler_hw2.l"
-{ return ID; }
+{ yylval.string = yytext; return ID; }
 	YY_BREAK
 /* others */
 case 55:
@@ -1178,7 +1178,7 @@ case 56:
 /* rule 56 can match eol */
 YY_RULE_SETUP
 #line 112 "compiler_hw2.l"
-{  }
+{ yylineno++; }
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
@@ -1194,7 +1194,7 @@ case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(COMMENT):
 case YY_STATE_EOF(STRING_STATE):
 #line 115 "compiler_hw2.l"
-{ }
+{ return 0; }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP

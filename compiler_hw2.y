@@ -26,6 +26,8 @@ struct symbolTableStruct {
 
 struct symbolTableStruct symbolTable[30];
 int currentIndex;
+
+
     
 %}
 
@@ -42,7 +44,7 @@ int currentIndex;
 
 /* Token without return */
 %token PRINT
-%token ID SEMICOLON
+%token SEMICOLON
 %token ADD SUB MUL DIV MOD INC DEC
 %token MT LT MTE LTE EQ NE
 %token ASGN ADDASGN SUBASGN MULASGN DIVASGN MODASGN
@@ -54,13 +56,15 @@ int currentIndex;
 /* Token with return, which need to sepcify type */
 %token <i_val> I_CONST
 %token <f_val> F_CONST
+%token <string> S_CONST
 %token <string> INT FLOAT BOOL STRING VOID TR FA RET
+%token <string> ID
 
 
 
 /* Nonterminal with return, which need to sepcify type */
-%type <f_val> stat
-//%type <string> type
+//%type <f_val> stat
+%type <string> type
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -68,13 +72,256 @@ int currentIndex;
 /* Grammar section */
 %%
 
-program
-    :program stat
-    |stat
+primary_expression  // not copied intactly
+    : ID { printf("ID %s in primary expression.\n", $1); }
+    | constant
+    | LB expression RB
 ;
 
-stat
-    :F_CONST
+constant  // not copied intactly
+    : I_CONST { printf("INT %d.\n", $1); }
+    | F_CONST { printf("FLOAT %f.\n", $1); }
+	| S_CONST { printf("STRING %s.\n", $1); }
+	| TR
+	| FA
+;
+
+
+postfix_expression  // not copied intactly
+    : primary_expression
+    | postfix_expression LSB expression RSB
+    | postfix_expression LB RB
+    | postfix_expression LB argument_expression_list RB
+    | postfix_expression INC
+    | postfix_expression DEC
+;
+
+argument_expression_list
+    : assignment_expression
+    | argument_expression_list COMMA assignment_expression
+;
+
+unary_expression
+    : postfix_expression
+    | INC unary_expression
+    | DEC unary_expression
+    | unary_operator cast_expression
+;
+
+unary_operator
+    : '&'
+    | MUL
+    | ADD
+    | SUB
+    | '~'
+    | '!'
+;
+
+cast_expression  // not copied intactly
+    : unary_expression
+;
+
+multiplicative_expression
+    : cast_expression
+    | multiplicative_expression MUL cast_expression
+    | multiplicative_expression DIV cast_expression
+    | multiplicative_expression MOD cast_expression
+;
+
+additive_expression
+    : multiplicative_expression
+    | additive_expression ADD multiplicative_expression
+    | additive_expression SUB multiplicative_expression
+;
+
+shift_expression
+    : additive_expression
+;
+
+relational_expression
+    : shift_expression
+    | relational_expression LT shift_expression
+    | relational_expression MT shift_expression
+    | relational_expression LTE shift_expression
+    | relational_expression MTE shift_expression
+;
+
+equality_expression
+    : relational_expression
+    | equality_expression EQ relational_expression
+    | equality_expression NE relational_expression
+;
+
+and_expression
+    : equality_expression
+    | and_expression '&' equality_expression
+;
+
+exclusive_or_expression
+    : and_expression
+    | exclusive_or_expression '^' and_expression
+;
+
+inclusive_or_expression
+    : exclusive_or_expression
+    | inclusive_or_expression '|' exclusive_or_expression
+;
+
+logical_and_expression
+    : inclusive_or_expression
+    | logical_and_expression AND inclusive_or_expression
+;
+
+logical_or_expression
+    : logical_and_expression
+    | logical_or_expression OR logical_and_expression
+;
+
+conditional_expression
+    : logical_or_expression
+    | logical_or_expression '?' expression ':' conditional_expression
+;
+
+assignment_expression
+    : conditional_expression
+    | unary_expression assignment_operator assignment_expression
+;
+
+assignment_operator
+    : ASGN
+    | MULASGN
+    | DIVASGN
+    | MODASGN
+    | ADDASGN
+    | SUBASGN
+;
+
+expression
+    : assignment_expression
+    | expression COMMA assignment_expression
+;
+
+declaration
+    : declaration_specifiers SEMICOLON { printf("declaration semi.\n"); }
+    | declaration_specifiers init_declarator_list SEMICOLON { printf("declaration semicolon.\n"); }
+    ;
+
+declaration_specifiers
+    : type declaration_specifiers { printf("type declaration_specifiers.\n"); }
+    | type { printf("type.\n"); }
+;
+
+type
+	: INT		{ $$ = $1; printf("%s IS DETECTED.\n", $1); }
+	| FLOAT		{ $$ = $1; printf("%s IS DETECTED.\n", $1); }
+	| STRING	{ $$ = $1; printf("BOOL IS DETECTED.\n"); }
+	| BOOL		{ $$ = $1; printf("%s IS DETECTED.\n", $1); }
+	| VOID		{ $$ = $1; printf("%s IS DETECTED.\n", $1); }
+;
+
+init_declarator_list
+    : init_declarator  { printf("init declarator list.\n"); }
+    | init_declarator_list COMMA init_declarator { printf("init declarator list 2.\n"); }
+;
+
+init_declarator
+    : declarator ASGN assignment_expression { printf("init_declarator.\n"); }
+    | declarator { printf("init_declarator 2.\n"); }
+;
+
+declarator  // (direct_declarator) not copied intactly
+    : ID { printf("ID %s.\n", $1); }
+    | LB declarator RB
+    | declarator LB parameter_list RB { printf("declarators in LB RB 1.\n"); }
+    | declarator LB RB
+    | declarator LB identifier_list RB { printf("declarators in LB RB 2.\n"); }
+;
+
+parameter_list // ()
+    : parameter_declaration
+    | parameter_list COMMA parameter_declaration
+;
+
+parameter_declaration // not copied intactly
+    : declaration_specifiers declarator
+    | declaration_specifiers
+;
+
+identifier_list
+    : ID
+    | identifier_list COMMA ID
+;
+
+statement  // canceled labeled_statement
+    : compound_statement { printf("compound statement.\n"); }
+    | expression_statement { printf("expression statement.\n"); }
+    | selection_statement { printf("selection statement.\n"); }
+    | iteration_statement { printf("iteration statement.\n"); }
+    | jump_statement { printf("jump statement.\n"); }
+	| print_statement { printf("print statement.\n"); }
+	| function_statement { printf("function statement.\n"); }
+;
+
+compound_statement
+    : LCB RCB { printf("compound 1.\n"); }
+    | LCB block_item_list RCB { printf("compound 2.\n"); }
+;
+
+block_item_list
+    : block_item { printf("block item list 1.\n"); }
+    | block_item_list block_item { printf("block item list 2.\n"); }
+;
+
+block_item
+    : declaration { printf("block_item 1.\n"); }
+    | statement { printf("block_item 2.\n"); }
+;
+
+expression_statement
+    : SEMICOLON
+    | expression SEMICOLON
+;
+
+selection_statement
+    : IF LB expression RB statement ELSE statement
+    | IF LB expression RB statement
+;
+
+iteration_statement
+    : WHILE LB expression RB statement { printf("while statement.\n"); }
+    | FOR LB expression_statement expression_statement RB statement
+    | FOR LB expression_statement expression_statement expression RB statement
+    | FOR LB declaration expression_statement RB statement
+    | FOR LB declaration expression_statement expression RB statement
+;
+
+jump_statement // canceled CONTINUE & BREAK
+    : RET SEMICOLON { printf("return no argument.\n"); }
+    | RET expression SEMICOLON { printf("return with argument.\n"); }
+;
+
+print_statement
+	: PRINT LB primary_expression RB SEMICOLON
+;
+
+function_statement
+	: ID LB expression RB SEMICOLON
+	| ID LB RB SEMICOLON
+;
+
+program
+    : external_declaration { printf("hahaha\n"); }
+    | program external_declaration { printf("hahaha2\n"); }
+;
+
+external_declaration
+    : function_definition { printf("func definition.\n"); }
+    | declaration { printf("declaration.\n"); }
+;
+
+function_definition
+    //: declaration_specifiers declarator declaration_list compound_statement
+    : declaration_specifiers declarator compound_statement { printf("function definition.\n"); }
 ;
 
 
@@ -82,9 +329,9 @@ stat
 
 /* C code section */
 int main(int argc, char** argv)
-{
-    yylineno = 0;
-    
+{   
+	yylineno = 0;
+
     create_symbol();
 
     yyparse();
@@ -119,7 +366,7 @@ void insert_symbol(char *insertName, char *insertEntryType, char *insertDataType
 		strcpy(symbolTable[currentIndex].entryType, insertEntryType);
 		strcpy(symbolTable[currentIndex].dataType, insertDataType);
 		symbolTable[currentIndex].scopeLevel = insertScopeLevel;
-		// not finished yet
+		// formal parameters not finished yet
 	}
 	else {
 		// semantic error 
