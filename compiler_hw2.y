@@ -51,6 +51,7 @@ int currentIndex;
 %token AND OR NOT 
 %token LB RB LCB RCB LSB RSB COMMA
 %token IF ELSE FOR WHILE
+%token C_COMMENT CPP_COMMENT
 
 
 /* Token with return, which need to sepcify type */
@@ -73,15 +74,15 @@ int currentIndex;
 %%
 
 primary_expression  // not copied intactly
-    : ID { printf("ID %s in primary expression.\n", $1); }
+    : ID {  }
     | constant
     | LB expression RB
 ;
 
 constant  // not copied intactly
-    : I_CONST { printf("INT %d.\n", $1); }
-    | F_CONST { printf("FLOAT %f.\n", $1); }
-	| S_CONST { printf("STRING %s.\n", $1); }
+    : I_CONST {  }
+    | F_CONST {  }
+	| S_CONST {  }
 	| TR
 	| FA
 ;
@@ -202,39 +203,39 @@ expression
 ;
 
 declaration
-    : declaration_specifiers SEMICOLON { printf("declaration semi.\n"); }
-    | declaration_specifiers init_declarator_list SEMICOLON { printf("declaration semicolon.\n"); }
+    : declaration_specifiers SEMICOLON
+    | declaration_specifiers init_declarator_list SEMICOLON
     ;
 
 declaration_specifiers
-    : type declaration_specifiers { printf("type declaration_specifiers.\n"); }
-    | type { printf("type.\n"); }
+    : type declaration_specifiers
+    | type
 ;
 
 type
-	: INT		{ $$ = $1; printf("%s IS DETECTED.\n", $1); }
-	| FLOAT		{ $$ = $1; printf("%s IS DETECTED.\n", $1); }
-	| STRING	{ $$ = $1; printf("BOOL IS DETECTED.\n"); }
-	| BOOL		{ $$ = $1; printf("%s IS DETECTED.\n", $1); }
-	| VOID		{ $$ = $1; printf("%s IS DETECTED.\n", $1); }
+	: INT		{ $$ = $1; }
+	| FLOAT		{ $$ = $1; }
+	| STRING	{ $$ = $1; }
+	| BOOL		{ $$ = $1; }
+	| VOID		{ $$ = $1; }
 ;
 
 init_declarator_list
-    : init_declarator  { printf("init declarator list.\n"); }
-    | init_declarator_list COMMA init_declarator { printf("init declarator list 2.\n"); }
+    : init_declarator
+    | init_declarator_list COMMA init_declarator
 ;
 
 init_declarator
-    : declarator ASGN assignment_expression { printf("init_declarator.\n"); }
-    | declarator { printf("init_declarator 2.\n"); }
+    : declarator ASGN assignment_expression
+    | declarator
 ;
 
 declarator  // (direct_declarator) not copied intactly
-    : ID { printf("ID %s.\n", $1); }
+    : ID
     | LB declarator RB
-    | declarator LB parameter_list RB { printf("declarators in LB RB 1.\n"); }
+    | declarator LB parameter_list RB
     | declarator LB RB
-    | declarator LB identifier_list RB { printf("declarators in LB RB 2.\n"); }
+    | declarator LB identifier_list RB
 ;
 
 parameter_list // ()
@@ -253,28 +254,28 @@ identifier_list
 ;
 
 statement  // canceled labeled_statement
-    : compound_statement { printf("compound statement.\n"); }
-    | expression_statement { printf("expression statement.\n"); }
-    | selection_statement { printf("selection statement.\n"); }
-    | iteration_statement { printf("iteration statement.\n"); }
-    | jump_statement { printf("jump statement.\n"); }
-	| print_statement { printf("print statement.\n"); }
-	| function_statement { printf("function statement.\n"); }
+    : compound_statement
+    | expression_statement
+    | selection_statement
+    | iteration_statement
+    | jump_statement
+	| print_statement
+	| function_statement
 ;
 
 compound_statement
-    : LCB RCB { printf("compound 1.\n"); }
-    | LCB block_item_list RCB { printf("compound 2.\n"); }
+    : LCB RCB
+    | LCB block_item_list RCB
 ;
 
 block_item_list
-    : block_item { printf("block item list 1.\n"); }
-    | block_item_list block_item { printf("block item list 2.\n"); }
+    : block_item
+    | block_item_list block_item
 ;
 
 block_item
-    : declaration { printf("block_item 1.\n"); }
-    | statement { printf("block_item 2.\n"); }
+    : declaration
+    | statement
 ;
 
 expression_statement
@@ -288,7 +289,7 @@ selection_statement
 ;
 
 iteration_statement
-    : WHILE LB expression RB statement { printf("while statement.\n"); }
+    : WHILE LB expression RB statement
     | FOR LB expression_statement expression_statement RB statement
     | FOR LB expression_statement expression_statement expression RB statement
     | FOR LB declaration expression_statement RB statement
@@ -296,8 +297,8 @@ iteration_statement
 ;
 
 jump_statement // canceled CONTINUE & BREAK
-    : RET SEMICOLON { printf("return no argument.\n"); }
-    | RET expression SEMICOLON { printf("return with argument.\n"); }
+    : RET SEMICOLON
+    | RET expression SEMICOLON
 ;
 
 print_statement
@@ -310,18 +311,18 @@ function_statement
 ;
 
 program
-    : external_declaration { printf("hahaha\n"); }
-    | program external_declaration { printf("hahaha2\n"); }
+    : external_declaration
+    | program external_declaration
 ;
 
 external_declaration
-    : function_definition { printf("func definition.\n"); }
-    | declaration { printf("declaration.\n"); }
+    : function_definition
+    | declaration
 ;
 
 function_definition
     //: declaration_specifiers declarator declaration_list compound_statement
-    : declaration_specifiers declarator compound_statement { printf("function definition.\n"); }
+    : declaration_specifiers declarator compound_statement
 ;
 
 
@@ -330,7 +331,8 @@ function_definition
 /* C code section */
 int main(int argc, char** argv)
 {   
-	yylineno = 0;
+	yylineno = 1;
+	printf("%d: ", yylineno);
 
     create_symbol();
 

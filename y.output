@@ -1,6 +1,8 @@
 Terminals unused in grammar
 
    NOT
+   C_COMMENT
+   CPP_COMMENT
 
 
 State 77 conflicts: 1 shift/reduce
@@ -222,111 +224,113 @@ IF (289) 105 106
 ELSE (290) 105
 FOR (291) 108 109 110 111
 WHILE (292) 107
-I_CONST (293) 4
-F_CONST (294) 5
-S_CONST (295) 6
-INT (296) 70
-FLOAT (297) 71
-BOOL (298) 73
-STRING (299) 72
-VOID (300) 74
-TR (301) 7
-FA (302) 8
-RET (303) 112 113
-ID (304) 1 79 88 89 115 116
+C_COMMENT (293)
+CPP_COMMENT (294)
+I_CONST (295) 4
+F_CONST (296) 5
+S_CONST (297) 6
+INT (298) 70
+FLOAT (299) 71
+BOOL (300) 73
+STRING (301) 72
+VOID (302) 74
+TR (303) 7
+FA (304) 8
+RET (305) 112 113
+ID (306) 1 79 88 89 115 116
 
 
 Nonterminals, with rules where they appear
 
-$accept (57)
+$accept (59)
     on left: 0
-primary_expression (58)
+primary_expression (60)
     on left: 1 2 3, on right: 9 114
-constant (59)
+constant (61)
     on left: 4 5 6 7 8, on right: 2
-postfix_expression (60)
+postfix_expression (62)
     on left: 9 10 11 12 13 14, on right: 10 11 12 13 14 17
-argument_expression_list (61)
+argument_expression_list (63)
     on left: 15 16, on right: 12 16
-unary_expression (62)
+unary_expression (64)
     on left: 17 18 19 20, on right: 18 19 27 57
-unary_operator (63)
+unary_operator (65)
     on left: 21 22 23 24 25 26, on right: 20
-cast_expression (64)
+cast_expression (66)
     on left: 27, on right: 20 28 29 30 31
-multiplicative_expression (65)
+multiplicative_expression (67)
     on left: 28 29 30 31, on right: 29 30 31 32 33 34
-additive_expression (66)
+additive_expression (68)
     on left: 32 33 34, on right: 33 34 35
-shift_expression (67)
+shift_expression (69)
     on left: 35, on right: 36 37 38 39 40
-relational_expression (68)
+relational_expression (70)
     on left: 36 37 38 39 40, on right: 37 38 39 40 41 42 43
-equality_expression (69)
+equality_expression (71)
     on left: 41 42 43, on right: 42 43 44 45
-and_expression (70)
+and_expression (72)
     on left: 44 45, on right: 45 46 47
-exclusive_or_expression (71)
+exclusive_or_expression (73)
     on left: 46 47, on right: 47 48 49
-inclusive_or_expression (72)
+inclusive_or_expression (74)
     on left: 48 49, on right: 49 50 51
-logical_and_expression (73)
+logical_and_expression (75)
     on left: 50 51, on right: 51 52 53
-logical_or_expression (74)
+logical_or_expression (76)
     on left: 52 53, on right: 53 54 55
-conditional_expression (75)
+conditional_expression (77)
     on left: 54 55, on right: 55 56
-assignment_expression (76)
+assignment_expression (78)
     on left: 56 57, on right: 15 16 57 64 65 77
-assignment_operator (77)
+assignment_operator (79)
     on left: 58 59 60 61 62 63, on right: 57
-expression (78)
+expression (80)
     on left: 64 65, on right: 3 10 55 65 104 105 106 107 109 111 113
     115
-declaration (79)
+declaration (81)
     on left: 66 67, on right: 101 110 111 120
-declaration_specifiers (80)
+declaration_specifiers (82)
     on left: 68 69, on right: 66 67 68 86 87 121
-type (81)
+type (83)
     on left: 70 71 72 73 74, on right: 68 69
-init_declarator_list (82)
+init_declarator_list (84)
     on left: 75 76, on right: 67 76
-init_declarator (83)
+init_declarator (85)
     on left: 77 78, on right: 75 76
-declarator (84)
+declarator (86)
     on left: 79 80 81 82 83, on right: 77 78 80 81 82 83 86 121
-parameter_list (85)
+parameter_list (87)
     on left: 84 85, on right: 81 85
-parameter_declaration (86)
+parameter_declaration (88)
     on left: 86 87, on right: 84 85
-identifier_list (87)
+identifier_list (89)
     on left: 88 89, on right: 83 89
-statement (88)
+statement (90)
     on left: 90 91 92 93 94 95 96, on right: 102 105 106 107 108 109
     110 111
-compound_statement (89)
+compound_statement (91)
     on left: 97 98, on right: 90 121
-block_item_list (90)
+block_item_list (92)
     on left: 99 100, on right: 98 100
-block_item (91)
+block_item (93)
     on left: 101 102, on right: 99 100
-expression_statement (92)
+expression_statement (94)
     on left: 103 104, on right: 91 108 109 110 111
-selection_statement (93)
+selection_statement (95)
     on left: 105 106, on right: 92
-iteration_statement (94)
+iteration_statement (96)
     on left: 107 108 109 110 111, on right: 93
-jump_statement (95)
+jump_statement (97)
     on left: 112 113, on right: 94
-print_statement (96)
+print_statement (98)
     on left: 114, on right: 95
-function_statement (97)
+function_statement (99)
     on left: 115 116, on right: 96
-program (98)
+program (100)
     on left: 117 118, on right: 0 118
-external_declaration (99)
+external_declaration (101)
     on left: 119 120, on right: 117 118
-function_definition (100)
+function_definition (102)
     on left: 121, on right: 119
 
 

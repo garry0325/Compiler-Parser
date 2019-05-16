@@ -80,18 +80,20 @@ extern int yydebug;
     ELSE = 290,
     FOR = 291,
     WHILE = 292,
-    I_CONST = 293,
-    F_CONST = 294,
-    S_CONST = 295,
-    INT = 296,
-    FLOAT = 297,
-    BOOL = 298,
-    STRING = 299,
-    VOID = 300,
-    TR = 301,
-    FA = 302,
-    RET = 303,
-    ID = 304
+    C_COMMENT = 293,
+    CPP_COMMENT = 294,
+    I_CONST = 295,
+    F_CONST = 296,
+    S_CONST = 297,
+    INT = 298,
+    FLOAT = 299,
+    BOOL = 300,
+    STRING = 301,
+    VOID = 302,
+    TR = 303,
+    FA = 304,
+    RET = 305,
+    ID = 306
   };
 #endif
 /* Tokens.  */
@@ -130,18 +132,20 @@ extern int yydebug;
 #define ELSE 290
 #define FOR 291
 #define WHILE 292
-#define I_CONST 293
-#define F_CONST 294
-#define S_CONST 295
-#define INT 296
-#define FLOAT 297
-#define BOOL 298
-#define STRING 299
-#define VOID 300
-#define TR 301
-#define FA 302
-#define RET 303
-#define ID 304
+#define C_COMMENT 293
+#define CPP_COMMENT 294
+#define I_CONST 295
+#define F_CONST 296
+#define S_CONST 297
+#define INT 298
+#define FLOAT 299
+#define BOOL 300
+#define STRING 301
+#define VOID 302
+#define TR 303
+#define FA 304
+#define RET 305
+#define ID 306
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
@@ -156,7 +160,7 @@ union YYSTYPE
     int b_val;
     int v_val;
 
-#line 160 "y.tab.h" /* yacc.c:1909  */
+#line 164 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
