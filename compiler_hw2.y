@@ -9,12 +9,21 @@ extern int yylex();
 extern char* yytext;   // Get current token from lex
 extern char buf[256];  // Get current code line from lex
 
+
 /* Symbol table function - you can add new function if needed. */
 void yyerror(char*);
-int lookup_symbol(char*);
-void create_symbol();
+int lookup_symbol(char*, int);
+void create_symbol(int);
 void insert_symbol(char*, char*, char*, int);
-void dump_symbol();
+void dump_symbol(int);
+
+char idBuffer[32][32];
+int idBufferIndex;
+char name[64];
+char entryType[16];
+char dataType[16];
+int scopeLevel;
+int formalParameters[10];
 
 struct symbolTableStruct {
     char name[64];
@@ -204,7 +213,11 @@ expression
 
 declaration
     : declaration_specifiers SEMICOLON
-    | declaration_specifiers init_declarator_list SEMICOLON
+    | declaration_specifiers init_declarator_list SEMICOLON {  // meet regular declaration
+    	insert_symbol(name, "variable", dataType, scopeLevel);
+    	strcpy(name, "\0");
+    	strcpy(dataType, "\0");
+		}
     ;
 
 declaration_specifiers
@@ -213,11 +226,11 @@ declaration_specifiers
 ;
 
 type
-	: INT		{ $$ = $1; }
-	| FLOAT		{ $$ = $1; }
-	| STRING	{ $$ = $1; }
-	| BOOL		{ $$ = $1; }
-	| VOID		{ $$ = $1; }
+	: INT		{ strcpy(dataType, $1); }
+	| FLOAT		{ strcpy(dataType, $1); }
+	| STRING	{ strcpy(dataType, $1); }
+	| BOOL		{ strcpy(dataType, $1); }
+	| VOID		{ strcpy(dataType, $1); }
 ;
 
 init_declarator_list
@@ -231,7 +244,7 @@ init_declarator
 ;
 
 declarator  // (direct_declarator) not copied intactly
-    : ID
+    : ID { strcpy(name, $1); }
     | LB declarator RB
     | declarator LB parameter_list RB
     | declarator LB RB
@@ -244,7 +257,12 @@ parameter_list // ()
 ;
 
 parameter_declaration // not copied intactly
-    : declaration_specifiers declarator
+    : declaration_specifiers declarator {
+    	scopeLevel = 1;
+    	insert_symbol(name, "parameter", dataType, scopeLevel);
+    	strcpy(name, "\0");
+    	strcpy(dataType, "\0");
+    	}
     | declaration_specifiers
 ;
 
@@ -306,8 +324,8 @@ print_statement
 ;
 
 function_statement
-	: ID LB expression RB SEMICOLON
-	| ID LB RB SEMICOLON
+	: ID LB expression RB SEMICOLON  { printf("function_statement 1.\n"); }
+	| ID LB RB SEMICOLON { printf("function_statement 2.\n"); }
 ;
 
 program
@@ -316,13 +334,16 @@ program
 ;
 
 external_declaration
-    : function_definition
+    : function_definition {  }
     | declaration
 ;
 
 function_definition
     //: declaration_specifiers declarator declaration_list compound_statement
-    : declaration_specifiers declarator compound_statement
+    : declaration_specifiers declarator compound_statement {
+    	dump_symbol(scopeLevel);
+    	scopeLevel--;
+    	}
 ;
 
 
@@ -333,11 +354,18 @@ int main(int argc, char** argv)
 {   
 	yylineno = 1;
 	printf("%d: ", yylineno);
-
-    create_symbol();
+	
+	scopeLevel = 0;
+	idBufferIndex = -1;
+	for(int i=0; i<32; i++) {
+		strcpy(idBuffer[i], "\0");
+		}
+	
+	currentIndex = -1;
+    create_symbol(0);
 
     yyparse();
-	printf("\nTotal lines: %d \n",yylineno);
+	printf("\nTotal lines: %d \n", yylineno);
 
     return 0;
 }
@@ -350,9 +378,8 @@ void yyerror(char *s)
     printf("\n|-----------------------------------------------|\n\n");
 }
 
-void create_symbol() {
-	currentIndex = -1;
-	for(int i=0; i<30; i++) {
+void create_symbol(int head) {
+	for(int i=head; i<30; i++) {
 		strcpy(symbolTable[i].name, "\0");
 		strcpy(symbolTable[i].entryType, "\0");
 		strcpy(symbolTable[i].dataType, "\0");
@@ -362,7 +389,7 @@ void create_symbol() {
 }
 
 void insert_symbol(char *insertName, char *insertEntryType, char *insertDataType, int insertScopeLevel) {
-	if(lookup_symbol(insertName) == 0) {
+	if(lookup_symbol(insertName, insertScopeLevel) == 0) {
 		currentIndex = currentIndex + 1;
 		strcpy(symbolTable[currentIndex].name, insertName);
 		strcpy(symbolTable[currentIndex].entryType, insertEntryType);
@@ -371,14 +398,15 @@ void insert_symbol(char *insertName, char *insertEntryType, char *insertDataType
 		// formal parameters not finished yet
 	}
 	else {
-		// semantic error 
+		// semantic error
+		printf("%s semantic error.\n", insertName);
 	}
 }
 
-int lookup_symbol(char *lookupName) {
+int lookup_symbol(char *lookupName, int lookupScopeLevel) {
 	int same = 0;
 	for(int i=0; i<30; i++) {
-		if(strcmp(symbolTable[i].name, lookupName) == 1) {
+		if(strcmp(symbolTable[i].name, lookupName) == 0 && symbolTable[i].scopeLevel == lookupScopeLevel) {
 			same = 1;
 			break;
 			}
@@ -386,14 +414,22 @@ int lookup_symbol(char *lookupName) {
 	return same;
 }
 
-void dump_symbol() {
-	if(currentIndex == -1) return;
+void dump_symbol(int scope) {
+	int startFrom=-1;
+	for(int i=0; i<=currentIndex; i++) {
+		if(symbolTable[i].scopeLevel == scope) {
+			startFrom = i;
+			break;
+			}
+		}
+	if(startFrom == -1) return;
 
     printf("\n%-10s%-10s%-12s%-10s%-10s%-10s\n\n",
            "Index", "Name", "Kind", "Type", "Scope", "Attribute");
 
-	for(int i=0; i<=currentIndex; i++) {
-		printf("%-10d%-10s%-12s%-10s%-10d", i, symbolTable[i].name, symbolTable[i].entryType, symbolTable[i].dataType, symbolTable[i].scopeLevel);
+	for(int i=startFrom; symbolTable[i].scopeLevel == scope; i++) {
+		printf("%-10d%-10s%-12s%-10s%-10d\n", i - startFrom, symbolTable[i].name, symbolTable[i].entryType, symbolTable[i].dataType, symbolTable[i].scopeLevel);
+		/*
 		int j=0;
 		while(symbolTable[i].formalParameters[j] != 0 && j<10) {
 			if(j != 0) printf(", ");
@@ -403,7 +439,7 @@ void dump_symbol() {
 			else if(symbolTable[i].formalParameters[j] == 4) printf("bool");
 			else if(symbolTable[i].formalParameters[j] == 5) printf("void");
 			j = j + 1;
-			}
+			}*/
 		}
-	create_symbol();
+	create_symbol(startFrom);
 }
