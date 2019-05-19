@@ -22,12 +22,23 @@ int main() {
 
     // if condition
     if (a > 10) {
+    	if( a > 20 ) {
+    		a = a + 20;
+    	}
+    	else if(a > 200) {
+    		a = a + 200;
+    		}
         x += a;
         print(x);
-    } else {
+    } else if( a > 300) {
         x = a % 10 + 10 * 7; /* Arithmetic */
         print(x);
-    }
+    } else if(a > 400) {
+    	a = a + 3000;
+    	}
+    else {
+    	a = a + 300;
+    	}
     loop(x, i);
     print("Hello World");
 

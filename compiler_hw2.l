@@ -4,6 +4,7 @@
 
 extern YYSTYPE yylval; //YYSTYPE
 char buf[256];
+int scopeLevel;
 
 /* This macro is used to record code line */
 #define CONCAT { strncat(buf, yytext, BUF_SIZE - strlen(buf) - 1); }
@@ -56,14 +57,14 @@ id	{letter}+({letter}|{digit})*
  /* Delimiters */
 "("			{ printf("%s", yytext); return LB; }
 ")"			{ printf("%s", yytext); return RB; }
-"{"			{ printf("%s", yytext); return LCB; }
-"}"			{ printf("%s", yytext); return RCB; }
+"{"			{ printf("%s", yytext); scopeLevel++; return LCB; }
+"}"			{ printf("%s", yytext); scopeLevel--; return RCB; }
 "["			{ printf("%s", yytext); return LSB; }
 "]"			{ printf("%s", yytext); return RSB; }
 ","			{ printf("%s", yytext); return COMMA; }
 
  /* Print Keywords */	
-"print"			{ printf("%s", yytext); yylval.string = yytext; return PRINT; }
+"print"			{ printf("%s", yytext); yylval.string = strdup(yytext); return PRINT; }
 
  /* Condition and Loop Keywords */
 "if"			{ printf("%s", yytext); return IF; }
@@ -72,22 +73,22 @@ id	{letter}+({letter}|{digit})*
 "while"			{ printf("%s", yytext); return WHILE; }
 
  /* Declaration Keywords */
-"void"			{ printf("%s", yytext); yylval.string = yytext; return VOID; }
-"int"			{ printf("%s", yytext); yylval.string = yytext; return INT; }
-"float"  		{ printf("%s", yytext); yylval.string = yytext; return FLOAT; }
-"string"  		{ printf("%s", yytext); yylval.string = yytext; return STRING; }
-"bool"  		{ printf("%s", yytext); yylval.string = yytext; return BOOL; }
+"void"			{ printf("%s", yytext); yylval.string = strdup(yytext); return VOID; }
+"int"			{ printf("%s", yytext); yylval.string = strdup(yytext); return INT; }
+"float"  		{ printf("%s", yytext); yylval.string = strdup(yytext); return FLOAT; }
+"string"  		{ printf("%s", yytext); yylval.string = strdup(yytext); return STRING; }
+"bool"  		{ printf("%s", yytext); yylval.string = strdup(yytext); return BOOL; }
 
  /* boolean Keywords */
-"true"			{ printf("%s", yytext); yylval.string = yytext; return TR; }
-"false"     		{ printf("%s", yytext); yylval.string = yytext; return FA; }
+"true"			{ printf("%s", yytext); yylval.string = strdup(yytext); return TR; }
+"false"     		{ printf("%s", yytext); yylval.string = strdup(yytext); return FA; }
 
-"return"		{ printf("%s", yytext); yylval.string = yytext; return RET; }
+"return"		{ printf("%s", yytext); yylval.string = strdup(yytext); return RET; }
 
  /* String Constant */
 \"			{ printf("%s", yytext); BEGIN STRING_STATE; }
 <STRING_STATE>\"	{ printf("%s", yytext); BEGIN 0; }
-<STRING_STATE>[^"]*	{ printf("%s", yytext); yylval.string = yytext; return S_CONST; }
+<STRING_STATE>[^"]*	{ printf("%s", yytext); yylval.string = strdup(yytext); return S_CONST; }
 
  /* Number Constant */
 {integer}		{ printf("%s", yytext); yylval.i_val = atoi(yytext); return I_CONST; }
@@ -104,7 +105,7 @@ id	{letter}+({letter}|{digit})*
 \/\/.*			{ printf("%s", yytext); }
 
  /* Variable ID */
- {id}       		{  printf("%s", yytext); yylval.string = yytext; return ID; }
+ {id}       		{ printf("%s", yytext); yylval.string = strdup(yytext); return ID; }
 
  /* others */
 
@@ -112,7 +113,7 @@ id	{letter}+({letter}|{digit})*
 [\n]			{ printf("\n%d: ", yylineno); }
 [ \t]			{ printf("%s", yytext); } 			/* Ignore */
 [^ \t\n]		{ printf("%s", yytext); } 			/* Ignore other charactor sets */
-<<EOF>>			{ return 0; }
+<<EOF>>			{ printf("\b");  return 0; }
 
 %%
 
