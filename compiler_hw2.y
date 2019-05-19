@@ -8,6 +8,7 @@ extern int yylineno;
 extern int yylex();
 extern char* yytext;   // Get current token from lex
 extern char buf[256];  // Get current code line from lex
+extern int error;
 
 
 /* Symbol table function - you can add new function if needed. */
@@ -17,8 +18,6 @@ void create_symbol(int);
 void insert_symbol(char*, char*, char*, int, int, char*);
 void dump_symbol(int);
 
-char idBuffer[32][32];
-int idBufferIndex;
 char name[64];
 char entryType[16];
 char dataType[16];
@@ -36,6 +35,7 @@ struct symbolTableStruct {
 struct symbolTableStruct symbolTable[30];
 int currentIndex;
 int formalPIndex;
+char errorMessage[64];
 
 
     
@@ -85,15 +85,22 @@ int formalPIndex;
 %%
 
 primary_expression  // not copied intactly
-    : ID {  }
+    : ID {
+    	if(lookup_symbol($1, -2) == 0) {
+    		strcpy(errorMessage, "\0");
+    		strcpy(errorMessage, "Undeclared variable ");
+    		strcat(errorMessage, $1);
+    		yyerror(errorMessage);
+    		}
+    	}
     | constant
     | LB expression RB
 ;
 
 constant  // not copied intactly
-    : I_CONST {  }
-    | F_CONST {  }
-	| S_CONST {  }
+    : I_CONST
+    | F_CONST
+	| S_CONST
 	| TR
 	| FA
 ;
@@ -225,7 +232,7 @@ declaration
     	strcpy(name, "\0");
     	strcpy(dataType, "\0");
 		}
-    ;
+	;
 
 declaration_specifiers
     : type declaration_specifiers
@@ -243,7 +250,7 @@ type
 
 declarator  // (direct_declarator) not copied intactly
     : ID {
-    	insert_symbol($1, "function", dataType, 0, 0, NULL);
+    	insert_symbol($1, "function", dataType, -3, 0, NULL);
     	strcpy(dataType, "\0");
     	formalPIndex = currentIndex;
     }
@@ -260,8 +267,7 @@ parameter_list // ()
 
 parameter_declaration // not copied intactly
     : declaration_specifiers ID {
-    	scopeLevel = 1;
-    	insert_symbol($2, "parameter", dataType, scopeLevel, 0, NULL);
+    	insert_symbol($2, "parameter", dataType, 1, 0, NULL);
     	insert_symbol(NULL, NULL, NULL, -1, 1, dataType);
     	strcpy(name, "\0");
     	strcpy(dataType, "\0");
@@ -276,7 +282,7 @@ statement  // canceled labeled_statement
     | iteration_statement
     | jump_statement
 	| print_statement
-	| function_statement
+	| function_statement_semicolon
 ;
 
 compound_statement
@@ -323,9 +329,27 @@ print_statement
 	: PRINT LB primary_expression RB SEMICOLON
 ;
 
+function_statement_semicolon
+	: function_statement SEMICOLON
+;
+
 function_statement
-	: ID LB expression RB SEMICOLON
-	| ID LB RB SEMICOLON
+	: ID LB expression RB {
+		if(lookup_symbol($1, -3) == 0) {
+			strcpy(errorMessage, "\0");
+			strcpy(errorMessage, "Undeclared function ");
+			strcat(errorMessage, $1);
+			yyerror(errorMessage);
+			}
+		}
+	| ID LB RB {
+		if(lookup_symbol($1, -3) == 0) {
+			strcpy(errorMessage, "\0");
+			strcpy(errorMessage, "Undeclared function ");
+			strcat(errorMessage, $1);
+			yyerror(errorMessage);
+			}
+		}
 ;
 
 program
@@ -341,8 +365,7 @@ external_declaration
 function_definition
     //: declaration_specifiers declarator declaration_list compound_statement
     : declaration_specifiers declarator compound_statement {
-    	dump_symbol(scopeLevel);
-    	scopeLevel--;
+    	//dump_symbol(scopeLevel);
     	}
 ;
 
@@ -352,31 +375,32 @@ function_definition
 /* C code section */
 int main(int argc, char** argv)
 {   
+	error = 0;
 	yylineno = 1;
 	printf("%d: ", yylineno);
 	
 	scopeLevel = 0;
-	idBufferIndex = -1;
-	for(int i=0; i<32; i++) {
-		strcpy(idBuffer[i], "\0");
-		}
 	
 	currentIndex = -1;
 	formalPIndex = -1;
     create_symbol(0);
 
-    yyparse();
-	printf("\n\nTotal lines: %d \n", yylineno);
-
+	int result;
+	result = yyparse();
+	if(!result) {
+		dump_symbol(0);
+		printf("\n\nTotal lines: %d \n", yylineno);
+		}
     return 0;
 }
 
 void yyerror(char *s)
 {
-    printf("\n|-----------------------------------------------|\n");
+    printf("\n\n|-----------------------------------------------|\n");
     printf("| Error found in line %d: %s\n", yylineno, buf);
     printf("| %s", s);
-    printf("\n|-----------------------------------------------|\n\n");
+    printf("\n|-----------------------------------------------|\n");
+    error = 1;
 }
 
 void create_symbol(int head) {
@@ -400,26 +424,65 @@ void insert_symbol(char *insertName, char *insertEntryType, char *insertDataType
 			}
 		}
 	else {
-		if(lookup_symbol(insertName, insertScopeLevel) == 0) {
+		int result = lookup_symbol(insertName, insertScopeLevel);
+		if(result == 0) {
 			currentIndex = currentIndex + 1;
 			strcpy(symbolTable[currentIndex].name, insertName);
 			strcpy(symbolTable[currentIndex].entryType, insertEntryType);
 			strcpy(symbolTable[currentIndex].dataType, insertDataType);
+			if(insertScopeLevel == -3) insertScopeLevel = 0;
 			symbolTable[currentIndex].scopeLevel = insertScopeLevel;
 			}
-		else {
-			// semantic error
-			printf("%s semantic error.\n", insertName);
+		else if(result == 1) {
+			strcpy(errorMessage, "\0");
+			strcat(errorMessage, "Redeclared variable ");
+			strcat(errorMessage, insertName);
+			yyerror(errorMessage);
+			}
+		else if(result == 2) {
+			strcpy(errorMessage, "\0");
+			strcat(errorMessage, "Redeclared function ");
+			strcat(errorMessage, insertName);
+			yyerror(errorMessage);
+			}
+		else if(result == 3) {
+			strcpy(errorMessage, "\0");
+			strcat(errorMessage, "Variable declared with name ");
+			strcat(errorMessage, insertName);
+			yyerror(errorMessage);
+			}
+		else if(result == 4) {
+			strcpy(errorMessage, "\0");
+			strcat(errorMessage, "Function declared with name ");
+			strcat(errorMessage, insertName);
+			yyerror(errorMessage);
 			}
 		}
 }
 
 int lookup_symbol(char *lookupName, int lookupScopeLevel) {
 	int same = 0;
-	for(int i=0; i<30; i++) {
-		if(strcmp(symbolTable[i].name, lookupName) == 0 && symbolTable[i].scopeLevel == lookupScopeLevel) {
-			same = 1;
-			break;
+	if(lookupScopeLevel == -3) {	// function name looks for function or variable names
+		for(int i=0; i<30; i++) {
+			if(strcmp(symbolTable[i].name, lookupName) == 0) {
+				if(strcmp(symbolTable[i].entryType, "function") == 0)
+					same = 2;	// function name meets same function name
+				else if(strcmp(symbolTable[i].entryType, "variable") == 0)
+					same = 3;	// function name meets same variable name
+				break;
+				}
+			}
+		}
+	else {	
+		for(int i=0; i<30; i++) {
+			if(strcmp(symbolTable[i].name, lookupName) == 0 && strcmp(symbolTable[i].entryType, "function") == 0 && lookupScopeLevel == 0) {
+				same = 4;
+				break;
+				}
+			if(strcmp(symbolTable[i].name, lookupName) == 0 && (symbolTable[i].scopeLevel == lookupScopeLevel || lookupScopeLevel == -2)) {
+				same = 1;	// for redeclared variable name
+				break;
+				}
 			}
 		}
 	return same;
