@@ -113,7 +113,7 @@ id	{letter}+({letter}|{digit})*
 [;]			{ strcat(buf, yytext); if(!error) printf("%s", yytext); error = 0; return SEMICOLON; }
 [\n]			{ strcpy(buf, "\0"); printf("\n%d: ", yylineno); }
 [\t]			{ strcat(buf, yytext); printf("%s", yytext); } 			/* Ignore */
-[^\t\n]		{ strcat(buf, yytext); printf("%s", yytext); } 			/* Ignore other charactor sets */
+[^\t\n]			{ strcat(buf, yytext); printf("%s", yytext); } 			/* Ignore other charactor sets */
 <<EOF>>			{ printf("\b"); return 0; }
 
 %%

@@ -74,9 +74,7 @@ char errorMessage[64];
 
 
 /* Nonterminal with return, which need to sepcify type */
-//%type <f_val> stat
 %type <string> type
-//%type <string> declarator
 
 /* Yacc will start at this nonterminal */
 %start program
@@ -84,7 +82,7 @@ char errorMessage[64];
 /* Grammar section */
 %%
 
-primary_expression  // not copied intactly
+primary_expression
     : ID {
     	if(lookup_symbol($1, -2) == 0) {
     		strcpy(errorMessage, "\0");
@@ -97,7 +95,7 @@ primary_expression  // not copied intactly
     | LB expression RB
 ;
 
-constant  // not copied intactly
+constant
     : I_CONST
     | F_CONST
 	| S_CONST
@@ -106,7 +104,7 @@ constant  // not copied intactly
 ;
 
 
-postfix_expression  // not copied intactly
+postfix_expression
     : primary_expression
     | postfix_expression LSB expression RSB
     | postfix_expression LB RB
@@ -136,7 +134,7 @@ unary_operator
     | '!'
 ;
 
-cast_expression  // not copied intactly
+cast_expression
     : unary_expression
 ;
 
@@ -221,7 +219,6 @@ expression
 ;
 
 declaration
-    //: declaration_specifiers SEMICOLON // int
     : declaration_specifiers ID SEMICOLON {  // meet regular declaration
     	insert_symbol($2, "variable", dataType, scopeLevel, 0, NULL);
     	strcpy(name, "\0");
@@ -248,7 +245,7 @@ type
 ;
 
 
-declarator  // (direct_declarator) not copied intactly
+declarator
     : ID {
     	insert_symbol($1, "function", dataType, -3, 0, NULL);
     	strcpy(dataType, "\0");
@@ -257,15 +254,14 @@ declarator  // (direct_declarator) not copied intactly
     | LB declarator RB
     | declarator LB parameter_list RB
     | declarator LB RB
-    //| funcName LB identifier_list RB
 ;
 
-parameter_list // ()
+parameter_list
     : parameter_declaration
     | parameter_list COMMA parameter_declaration
 ;
 
-parameter_declaration // not copied intactly
+parameter_declaration
     : declaration_specifiers ID {
     	insert_symbol($2, "parameter", dataType, 1, 0, NULL);
     	insert_symbol(NULL, NULL, NULL, -1, 1, dataType);
@@ -275,7 +271,7 @@ parameter_declaration // not copied intactly
     | declaration_specifiers
 ;
 
-statement  // canceled labeled_statement
+statement
     : compound_statement
     | expression_statement
     | selection_statement
@@ -320,7 +316,7 @@ iteration_statement
     | FOR LB declaration expression_statement expression RB statement
 ;
 
-jump_statement // canceled CONTINUE & BREAK
+jump_statement
     : RET SEMICOLON
     | RET expression SEMICOLON
 ;
@@ -363,10 +359,7 @@ external_declaration
 ;
 
 function_definition
-    //: declaration_specifiers declarator declaration_list compound_statement
-    : declaration_specifiers declarator compound_statement {
-    	//dump_symbol(scopeLevel);
-    	}
+    : declaration_specifiers declarator compound_statement
 ;
 
 
@@ -462,7 +455,7 @@ void insert_symbol(char *insertName, char *insertEntryType, char *insertDataType
 
 int lookup_symbol(char *lookupName, int lookupScopeLevel) {
 	int same = 0;
-	if(lookupScopeLevel == -3) {	// function name looks for function or variable names
+	if(lookupScopeLevel == -3) {	// function name looks for same function or variable names
 		for(int i=0; i<30; i++) {
 			if(strcmp(symbolTable[i].name, lookupName) == 0) {
 				if(strcmp(symbolTable[i].entryType, "function") == 0)
@@ -476,7 +469,7 @@ int lookup_symbol(char *lookupName, int lookupScopeLevel) {
 	else {	
 		for(int i=0; i<30; i++) {
 			if(strcmp(symbolTable[i].name, lookupName) == 0 && strcmp(symbolTable[i].entryType, "function") == 0 && lookupScopeLevel == 0) {
-				same = 4;
+				same = 4;	// global variable declared with existing function name
 				break;
 				}
 			if(strcmp(symbolTable[i].name, lookupName) == 0 && (symbolTable[i].scopeLevel == lookupScopeLevel || lookupScopeLevel == -2)) {
